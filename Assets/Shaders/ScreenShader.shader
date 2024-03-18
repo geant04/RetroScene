@@ -30,6 +30,7 @@ Shader "Custom/ScreenShader"
             float4 vertex : SV_POSITION;
             float2 uv : TEXCOORD0;
             float3 normal : TEXCOORD1;
+            float3 viewDir : TEXCOORD2;
         };
 
         v2f vp (inputData v) {
@@ -37,9 +38,16 @@ Shader "Custom/ScreenShader"
             i.uv = v.uv;
             i.normal = v.normal;
             i.vertex = UnityObjectToClipPos(v.vertex);
+            i.viewDir = WorldSpaceViewDir(v.vertex);
 
             return i;
         }
+
+        float hashOld12(float2 p) {
+            // Two typical hashes...
+	        return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
+        }
+
 
         float4 fp(v2f i) : SV_TARGET
         {
@@ -49,7 +57,7 @@ Shader "Custom/ScreenShader"
 
             float4 sample = tex2D(_MainTex, 0.98 * i.uv / bulgeUV + float2(-0.02, -0.05));
 
-            float lines = frac(i.uv.y * 2.0 - _Time.y * 5.0);
+            float lines = frac(i.uv.y * 2.0 + _Time.y * 5.0);
             float smallLines = frac(i.uv.y  * 100.0) * 0.03;
 
             //float vignette = 1.0 - 1.2 * length(i.uv - float2(0.5, 0.5));
@@ -63,6 +71,7 @@ Shader "Custom/ScreenShader"
             finalColor += (smallLines + lines * 0.20);
 
             return finalColor * _Brightness * vignette;
+            // finalColor * _Brightness * vignette + 
         }
 
         ENDCG

@@ -75,7 +75,7 @@ Material:
     - _DstBlend: 10
     - _FresnelSpecular: 1
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 0.703
     - _GlossyReflections: 1
     - _Intensity: 0
     - _Level: 0.5
@@ -101,7 +101,7 @@ Material:
     - _BottleColor: {r: 1, g: 1, b: 1, a: 1}
     - _BubbleAmbient: {r: 1, g: 1, b: 1, a: 1}
     - _BubbleColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 0.77052623, b: 0.5251572, a: 0.6117647}
+    - _Color: {r: 1, g: 0, b: 0.62823725, a: 0.6117647}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LightColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

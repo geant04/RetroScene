@@ -27,6 +27,8 @@ public class Liquid : MonoBehaviour
     void Start()
     {
         material.SetFloat("_Agitation", Agitation);
+        _LastPosition = transform.position;
+        _LastRotation = transform.rotation;
     }
 
     void Update()

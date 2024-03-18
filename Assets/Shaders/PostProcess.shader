@@ -94,7 +94,7 @@ Shader "Hidden/PostProcess"
                 float4 sample = tex2D(_MainTex, i.uv);
                 sample = lerp(sample, float4(noise, noise, noise, 1.0), 0.4 * dist) + float4(-0.01, 0.01, 0.05, 0.0);
 
-                return sample * fixed4(0.60 + r, 0.50 * g + 0.10, b + 0.05,0.0) * noiseColor * vignette * 1.25 + fixed4(0,0,0.1,0);
+                return sample * fixed4(0.50 + r, 0.50 * g + 0.10, b + 0.05,0.0) * noiseColor * vignette * 1.25 + fixed4(0,0,0.1,0);
             }
             ENDCG
         }
