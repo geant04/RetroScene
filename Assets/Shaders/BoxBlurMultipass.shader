@@ -13,7 +13,6 @@ Shader "Hidden/BoxBlurMultipass"
         Pass
         {
 
-
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
