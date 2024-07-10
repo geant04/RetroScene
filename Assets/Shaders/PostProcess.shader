@@ -3,20 +3,26 @@ Shader "Hidden/PostProcess"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Strength ("Strength", Range(0, 0.1)) = 0.01
+        _Strength("Strength", Range(0, 0.1)) = 0.01
     }
-    SubShader
-    {
-        // No culling or depth
-        Cull Off ZWrite Off ZTest Always
-
-        Pass
+        SubShader
         {
+            // No culling or depth
+            Cull Off ZWrite Off ZTest Always
+
+            Pass
+            {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
 
             #include "UnityCG.cginc"
+
+            float _DisableScanLines;
+            float _DisableWarping;
+            float _DisableNoise;
+            float _DisableChromaDistortion;
+            float _DisableVignetteSmudge;
 
             struct appdata
             {
@@ -99,11 +105,15 @@ Shader "Hidden/PostProcess"
                         );
                 sampleUV += float2(0.5, 0.5);
 
+                // Toggle to enable or not
+                sampleUV = _DisableWarping ? i.uv : sampleUV;
+
                 float2 border = sampleUV;
                 if (border.y > 1.0 || border.x < 0.0 || border.x > 1.0 || border.y < 0.0) {
                     return fixed4(0., 0., 0.0, 0);
                 }
 
+                // Scan lines
                 float2 uv = sampleUV;
 
                 float strength = 0.005;
@@ -128,46 +138,43 @@ Shader "Hidden/PostProcess"
                         random *= float2(1.0, 0.2);
                     }
                 }
-                if (hash1 < 0.05) {
-                    //random *= float2(0.5, 0.01) - float2(0.2, 0.0);
-                }
-                //if (hash2 < 0.01) {
-                //    random2 += float2(0.2, 0.21);
-                //}
 
+                uv = _DisableScanLines ? i.uv : uv;
+
+                // Default for later so I don't have to repeat this
+                float4 defaultColor = float4(1, 1, 1, 1);
                 
-                
+                // Aberration
                 float r = tex2D(_MainTex, uv + strength * 1.20).x * 0.15;
                 float g = tex2D(_MainTex, (uv) + random2 * float2(0.2, 0.0)).y;
                 float b = tex2D(_MainTex, uv * random + strength * float2(0.2, 0.2)).z * 0.20;
+                float4 distortedRGB = _DisableChromaDistortion ? defaultColor : float4(0.50 + r, 0.50 * g + 0.10, b + 0.35, 0.0);
 
+                // Noise
                 float4 noiseColor = float4(.86, .86, .86, 0.0);
-
                 noiseColor += float4(lines, lines, lines, 0.0) * 0.25 * frac(uv.x);
                 noiseColor += lines2 * 0.1;
+                noiseColor = _DisableNoise ? noiseColor = defaultColor : noiseColor;
 
                 float vignetteIntensity = 30.0;
                 float vignetteExtent = 0.12;
 
                 float pnoise = perlinNoise(sampleUV * 25.0);
                 vignetteExtent += pnoise * 0.4 * pnoise;
-                //vignetteExtent += perlinNoise(sampleUV * 200.0);
                 vignetteIntensity += pnoise;
 
                 float2 v_uv = sampleUV * (1.0 - float2(sampleUV.y, sampleUV.x));
-                float vignette = v_uv.x * v_uv.y * 15.0;
 
+                // Vignette + Smudge enable setting
+                float vignette = _DisableVignetteSmudge ? 1.0 : v_uv.x * v_uv.y * 15.0;
                 vignette = pow(vignette, vignetteExtent);
 
                 float dist = length(uv - float2(0.4, 0.55));
-                //float vignette = 1.0 - dist * 1.2;
 
                 float4 sample = tex2D(_MainTex, uv);
-                sample = lerp(sample, float4(noise, noise, noise, 1.0), 0.4 * dist) + float4(-0.01, 0.01, 0.05, 0.0);
+                sample = _DisableNoise ? sample : lerp(sample, float4(noise, noise, noise, 1.0), 0.4 * dist) + float4(-0.01, 0.01, 0.05, 0.0);
 
-                //  * fixed4(0.50 + r, 0.50 * g + 0.10, b + 0.05,0.0) * noiseColor
-
-                return sample * fixed4(0.50 + r, 0.50 * g + 0.10, b + 0.35, 0.0) * noiseColor * vignette * 1.0 + fixed4(0.1,0.2,0.1,0);
+                return sample * distortedRGB * noiseColor * vignette * 1.0 + !_DisableChromaDistortion * fixed4(0.1,0.2,0.1,0);
             }
             ENDCG
         }

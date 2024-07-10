@@ -32,6 +32,14 @@ public class RunShader : MonoBehaviour
     [Range(1f, 10f)]
 	public float bokehRadius = 4f;
 
+    [SerializeField] public bool _EnableVHS;
+    [SerializeField] public bool _EnableBlur;
+    [SerializeField] public bool _DisableScanLines;
+    [SerializeField] public bool _DisableWarping;
+    [SerializeField] public bool _DisableNoise;
+    [SerializeField] public bool _DisableChromaDistortion;
+    [SerializeField] public bool _DisableVignetteSmudge;
+
     private void Awake()
     {
         // Create a new material with the supplied shader.
@@ -44,9 +52,38 @@ public class RunShader : MonoBehaviour
     // OnRenderImage() is called when the camera has finished rendering.
     private void OnRenderImage(RenderTexture src, RenderTexture dst)
     {
-        RenderTexture tmp = RenderTexture.GetTemporary(src.width, src.height, 0, src.format);
-        //RenderTexture tmp2 = RenderTexture.GetTemporary(src.width, src.height, 0, src.format);
-        RenderTexture coc = RenderTexture.GetTemporary(src.width, src.height, 0, 
+        VHS.SetFloat("_DisableScanLines", _DisableScanLines ? 1 : 0);
+        VHS.SetFloat("_DisableWarping", _DisableWarping ? 1 : 0);
+        VHS.SetFloat("_DisableNoise", _DisableNoise ? 1 : 0);
+        VHS.SetFloat("_DisableChromaDistortion", _DisableChromaDistortion ? 1 : 0);
+        VHS.SetFloat("_DisableVignetteSmudge", _DisableVignetteSmudge ? 1 : 0);
+
+        // Not so modular post-processing stack, but it seems to work right now
+        RenderTexture tmp = src;
+
+        if (_EnableVHS)
+        {
+            tmp = RenderTexture.GetTemporary(src.width, src.height, 0, src.format);
+            Graphics.Blit(src, tmp, VHS);
+        }
+
+        RenderTexture tmp2 = tmp;
+
+        if (_EnableBlur)
+        {
+            tmp2 = RenderTexture.GetTemporary(src.width, src.height, 0, src.format);
+            Graphics.Blit(tmp, tmp2, blur);
+        }
+
+        Graphics.Blit(tmp2, dst);
+
+        RenderTexture.ReleaseTemporary(tmp);
+        RenderTexture.ReleaseTemporary(tmp2);
+    }
+
+    private void DOFComplex(RenderTexture src, RenderTexture dst)
+    {
+        RenderTexture coc = RenderTexture.GetTemporary(src.width, src.height, 0,
         RenderTextureFormat.RHalf, RenderTextureReadWrite.Linear);
 
         //blur.SetInt("_KernelSize", 6);
@@ -74,12 +111,5 @@ public class RunShader : MonoBehaviour
         RenderTexture.ReleaseTemporary(coc);
         RenderTexture.ReleaseTemporary(dof0);
         RenderTexture.ReleaseTemporary(dof1);
-
-        //Graphics.Blit(src, tmp, VHS);
-        //Graphics.Blit(tmp, dst, blur);
-        //Graphics.Blit(tmp2, dst, blur2);
-        
-        RenderTexture.ReleaseTemporary(tmp);
-        //RenderTexture.ReleaseTemporary(tmp2);
     }
 }

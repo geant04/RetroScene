@@ -1252,7 +1252,7 @@ Transform:
   m_GameObject: {fileID: 446220757}
   serializedVersion: 2
   m_LocalRotation: {x: -0.0008068291, y: 0.7071063, z: -0.0008068286, w: 0.7071063}
-  m_LocalPosition: {x: 5.352, y: 1.1800001, z: -9.4}
+  m_LocalPosition: {x: 5.352, y: 1.1800001, z: -10.586}
   m_LocalScale: {x: 1.2804251, y: 1.8357033, z: 0.6590921}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2653,6 +2653,14 @@ MonoBehaviour:
   dofShader: {fileID: 4800000, guid: 84a29dc160a7f9b4390d49c39eae761d, type: 3}
   focusDistance: 1.7
   focusRange: 4.2
+  bokehRadius: 4
+  _EnableVHS: 1
+  _EnableBlur: 1
+  _DisableScanLines: 0
+  _DisableWarping: 0
+  _DisableNoise: 0
+  _DisableChromaDistortion: 0
+  _DisableVignetteSmudge: 0
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3369,7 +3377,7 @@ Transform:
   m_GameObject: {fileID: 1210676286}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 5.35, y: 1.19, z: -8.036}
+  m_LocalPosition: {x: 5.35, y: 1.19, z: -9.222001}
   m_LocalScale: {x: 1.2804251, y: 1.8357033, z: 0.6590921}
   m_ConstrainProportionsScale: 0
   m_Children: []
